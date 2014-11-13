@@ -1,0 +1,93 @@
+\chapter{Methodology}
+
+\begin{markdown}
+
+# Julia subset for Kernel definition #
+
+The Julia programming language offers a rich set of abstractions
+for increasing programmer productivity. These abstractions incures a
+computation overhead at runtime due to indirections and a memory
+overhead as the abstractions needs to store more data. This section
+describes the subset of Julia used for defining kernels, two separate
+methods for implementing the abstractions and a reasoning on the
+chosen method.
+
+## The Kernel language ##
+
+In choosing a subset for the kernel language we look at the application
+of GPU programs. They use the SIMT model, in this model arrays
+fits good to most applications. This type is chosen among a basic interger.
+
+### Language constructs ###
+The basic constructs used in kernel definitions are __if__ and
+__for__.
+
+## Implementing the Array type ##
+
+There are two obvious methods to implement the types of the kernel
+language. On the one hand the types can be realized by implementing
+the full Julia abstraction on the GPU. On the other hand one can look
+at the implementation or arrays in existing GPU languages as OpenCL C
+and CUDA. These two choises both have their benefits and drawbacks
+explored in the next sections.
+
+### A full Julia implementation ###
+
+Implementing the Array abstraction from Julia involves including
+bounds checking and exception handling giving the programmer a familar
+interface to the type. This will ease development for the programmer
+could improve programmer productivity when writing kernels. With a
+correct implementation the Julia semantics would be continued on the
+GPU. The implementation is complicated by the fact that extra
+datatypes must be defined on the GPU and new copy functions must be
+added. The method does not trivialy imply a efficient implementation
+as the will be overhead both on element access and data movement. 
+
+### A low level implementation ###
+
+Implementing the Array type as a C like array implies getting rid of
+size information and leaving the task of bounds checking to the
+programmer. This approach is the simpler of the two as the
+implementation of a C array is quite simple. On the upside this will
+enable integration with existing tools like the CUDA.jl or OpenCL.jl
+libraries for transfering data to and from the GPU as these expect the
+data to be C like arrays on the GPU. This method produces efficient
+code trivially as there is no overhead compared to existing low level
+solutions. 
+
+### Choosing the Low level implementation ###
+
+The Low Level implementation is chosen as it is simpler to implement
+and will provide efficient code without resolving to custom
+optimizations. This lets the makes the implementation feasable in the
+time window and lets the focus be on a fully working system. 
+
+## ##
+
+# Generating GPU code from Julia functions #
+
+With the restricted kernel language in mind generating GPU code
+is described in this section.
+
+## Main idea ##
+
+The main idea for generating the GPU code is to substitute Julia
+arrays with C like pointers. And provide a low level implementation of
+the methods operating on the arrays for C like pointers. When
+inlineing for the functions operating on the array types are disabled,
+the LLVM IR generated resembles a highlevel description of the kernel
+that can be translated into a low level implementation on pointers. This
+fact is exploted and low level implementation of the highlevel Julia
+functions __getindex__ and __setindex__ are linked with the code.
+
+# Library vs. component of compiler #
+
+
+
+ 
+  - noinline
+  - lower types
+  - linking
+  - inline
+  
+\end{markdown}
