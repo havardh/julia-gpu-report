@@ -2,9 +2,10 @@
 \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
 \DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
 
-\renewcommand\thesubsection{\arabic{section}.\arabic{subsection}} % changes the subsection labeling to %SECTION%.%NUMBER%
-\renewcommand\thesubsubsection{\roman{subsubsection})} % changes the subsubsection numbering to %ROMAN%)
-\renewcommand\thesection{Part \arabic{section}} % changes the section numbering to Part %NUMBER%
+\renewcommand\thesubsection{\arabic{chapter}.\arabic{section}.\arabic{subsection}} % changes the subsection labeling to %SECTION%.%NUMBER%
+\renewcommand\thesubsubsection{\arabic{section}.\arabic{subsection}.\arabic{subsubsection}} % changes the subsubsection numbering to %ROMAN%)
+\renewcommand\thesection{\arabic{chapter}.\arabic{section}} % changes the section numbering to Part %NUMBER%
+%\renewcommand\thechapter{\setcounter{section}{1} \arabic{chapter}}
 
 \newenvironment{markdown}
     {\VerbatimEnvironment\begin{VerbatimOut}{tmp.markdown}}
