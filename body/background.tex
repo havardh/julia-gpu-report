@@ -6,7 +6,7 @@ Programming a modern GPU is a hard problem. A lot of architecture
 specific aspects has to be taken into consideration. Traditionaly
 these devices can only be programmed in low level languages such as
 C/C++. Software libraries and language bindings does exist for higher
-level languages enabling a user of such a language make use of the
+level languages. Enabling a user of such a language make use of the
 device, but the core implementation is still in a low level language.
 
 The Julia programming language aims to unify the two worlds of high
@@ -111,9 +111,9 @@ referals in the metadata section of LLVM modules.
 SPIR is OpenCLs new format for representing kernel for execution on
 heterogeneous systems. The specification is a mapping from OpenCL C
 into LLVM IR. SPIR does not add a lot of extra to the LLVM IR. The
-notable differences are __target datalayout__ and __triple__, a named
-metadata node for specifying kernels, specification of address space
-qualifiers and name mangling rules. In kernel argument information is
+notable differences are __target datalayout__ and __triple__, a __named
+metadata node__ for specifying kernels, specification of __address space
+qualifiers__ and __name mangling rules__. The kernel argument information is
 carried in the metadata section.
 
 \begin{minted}{llvm}
@@ -121,7 +121,7 @@ carried in the metadata section.
 target datalayout = "e-p:64:64:64- ... -v1024:1024:1024" ; Not complete
 target triple = "spir64-unknown-unknown"
 
-declare i64 @_Z13get_global_idj(i32)
+declare i64 @get_global_id(i32)
 
 define void @add(i64 addrspace(1)*, i64 addrspace(1)*, i64 addrspace(1)*) {
   ; code
@@ -169,15 +169,15 @@ the Intel Itanium.
 
 ## NVVM ##
 
-NVVM is nVidias intermediate representation used in the its LLVM based
-compiler for CUDA. It does as SPIR represent device kernels that are
-intended to be executed on a GPU solely. NVVM ads to LLVM IR a set of
-intrinsic functions for controlling the GPU. Among these are barriers,
-address space conversions, special register accessors. The NVVM Cuda
-Compiler compiles NVVM IR into PTX which is loaded into a the devices
-with either the CUDA or OpenCL driver provided by nVidia. Like SPIR it
-defines targets, address space qualifiers and a metadata node to
-declare a function as a kernel.
+NVVM is nVidias intermediate representation used in their LLVM based
+compiler for CUDA. It does as SPIR, represent device kernels that are
+intended to be executed on a device, but solely GPUs. NVVM ads to LLVM
+IR a set of intrinsic functions for controlling the GPU. Among these
+are barriers, address space conversions, special register
+accessors. The NVVM Cuda Compiler compiles NVVM IR into PTX which is
+loaded into a the devices with either the CUDA or OpenCL driver
+provided by nVidia. Like SPIR it defines targets, address space
+qualifiers and a metadata node to declare a function as a kernel.
 
 \begin{minted}{llvm}
 ; ModuleID = 'OpenCL Module'
