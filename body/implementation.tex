@@ -30,12 +30,11 @@ importaint details.
 \end{figure}
 
 Figure \ref{fig:compiler} illustrates the process of the code
-generation. A julia function is turned into LLVM IR with the compiler
-builtin macro __@code\_llvm__. This code is then lowered into code
-that the LLVM PTX backend can create PTX code for. Here the __llc__
-compiler is employed directly without modification. The PTX code can
-then be loaded and executed on the GPU with existing CUDA bindings
-written for Julia.
+generation. A julia function is turned into LLVM IR by the module
+generator. This code is then lowered into code that the LLVM PTX
+backend can create PTX code for. Here a modified version of the
+\gls{LLC} compiler is employed. The PTX code can then be loaded and
+executed on the GPU with existing CUDA bindings written for Julia.
 
 ## Julia Module Generator ##
 
@@ -45,9 +44,9 @@ The interface to the generator is the __code_module__ function.
 
 ## Lowering Compiler ##
 
-The lowering compiler is built on top of the LLVM static compiler
-__llc__. The compiler extends _llc_ by linking to predefined libraries,
-a lowering and an annotating compiler pass.
+The lowering compiler is built on top of the \gls{LLC}. The compiler
+extends \gls{LLC} by linking to predefined libraries, a lowering and
+an annotating compiler pass.
 
 # A Guided tour through the compiler #
 
@@ -152,10 +151,16 @@ The last step is done with existing libraries.
 
 ## Disabling inlineing ##
 
-A key to the method presented in this report is the __@noinline__
-macro. It is a modification to the Julia compiler. The macro marks a
-method so the Julia inlining mechanism will not consider a call to the
-method for inlining. 
+A key to the method presented in this report is disabling inlining.
+This can be done in two ways, either extending the Julia compiler or
+tricking the inlining mechanism. The compiler extention is to create a
+macro, _@noinline_ analogous to the exising _@inline_. The macro
+annotates a method so the Julia inlining mechanism will not consider a
+call to the method for inlining. The hack is to create a function that
+does not get inlined. By forcing this function to be inlined in the
+function you do not want inlined, you end up with a mechanism to avoid
+inlining. The latter approach is chosen to avoid changes to the
+compiler. 
 
 ## Unboxed arrays ##
 \label{sec:implementation-details-unboxed}

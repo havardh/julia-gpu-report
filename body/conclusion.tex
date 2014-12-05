@@ -4,14 +4,15 @@
 This report describes a library for tranlating vector functions in the
 Julia programming language to code that can execute on a NVIDIA
 GPU. The library is built using both Julia and the LLVM compiler
-infrastructure, utilizing the NVPTX backend. The result section shows
-that the resulting code is as performant as equivalent code written in
-CUDA and OpenCL C. Comparisons with current Julia CPU implementations
-of Matrix Multiplication also indicates that there is a posibility to
-offload even isolated computations to the GPU.
+infrastructure, utilizing the NVPTX backend. The results in Section
+\ref{sec:res} shows that the resulting code is as performant as
+equivalent code written in CUDA and OpenCL C. Comparisons with current
+Julia CPU implementations of Matrix Multiplication also indicates that
+there is a posibility to offload even isolated and relative small
+computations to the GPU.
 
-The results indicate that the unboxing of arrays approach taken by
-this library does not incure a loss of performance over lower level
+The results indicate that the unboxing of arrays approach taken by the
+PTX.jl library does not incure a loss of performance over lower level
 language implementations.
 
 The library enables using the existing GPU libraries written for Julia

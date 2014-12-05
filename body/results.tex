@@ -189,7 +189,7 @@ being faster on the CPU to being faster on the GPU.
 
 The _Memory Tranfer_ in Figure \ref{fig:res:mm:int32:mem} and
 \ref{fig:res:mm:int64:mem} reveales no surprices. The CPU does not
-require any memory transfer, therefor the graph is not visible in the
+require any memory transfer, therefore the graph is not visible in the
 figures. As expected, both CUDA and PTX.jl exposes a steady increase
 as the problem size grows.
 
@@ -199,11 +199,6 @@ GPU implementation in Figures \ref{fig:res:mm:int32:exec} and
 of cores on the GPU is two orders of magnitude lager than the CPU. We
 see that by only considering execution time the GPU implementation
 surpass the CPU at $n=50$ for 32-bits, and at $n=38$ for 64-bits.
-
-Another interesting note about the execution time is the difference
-between the CUDA and PTX.jl implementation. This is explored more in
-Section \ref{sec:res:cuda-v-ptx}.
-
 
 ## Floating point ##
 
@@ -258,6 +253,10 @@ Section \ref{sec:res:cuda-v-ptx}.
 
 ## Execution time CUDA vs PTX.jl ##
 
+
+Another interesting note about the execution time is the difference
+between the CUDA and PTX.jl implementation. This is explored more in
+Section \ref{sec:res:cuda-v-ptx}.
 dunno!
 
 \end{markdown}
