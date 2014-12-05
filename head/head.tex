@@ -2,6 +2,8 @@
 % !TEX encoding = UTF-8 Unicode
 
 \documentclass[10pt,a4paper]{report}
+
+
 %\setcounter{secnumdepth}{3}
 
 \input{head/packages.tex}
@@ -10,15 +12,21 @@
 
 \input{head/titlepage.tex}
 
+\input{body/glossary.tex}
+
 %%% BEGIN DOCUMENT
 \begin{document}
 
 \newpage
 \maketitle
-%\tableofcontents* % the asterisk means that the contents itself isn't put into the ToC
+\tableofcontents % the asterisk means that the contents itself isn't put into the ToC
 
 \input{body/body.tex}
 
+%\printnoidxglossaries
+
 \bibliography{body/bibliography}{}
 \bibliographystyle{plain}
+
 \end{document}
+

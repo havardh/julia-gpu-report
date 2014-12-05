@@ -1,5 +1,5 @@
 \chapter{Implementation}
-
+\label{chap:impl}
 \begin{markdown}
   
 # Introduction #
@@ -24,7 +24,7 @@ importaint details.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=100px]{body/figures/compiler.png}
+  \includegraphics[width=200px]{body/figures/compiler.png}
   \caption{}
   \label{fig:compiler}
 \end{figure}
@@ -161,13 +161,18 @@ method for inlining.
 \label{sec:implementation-details-unboxed}
 
 The unboxed array implementation is a shared implementation between
-Julia and OpenCL C. On the Julia side the type __GPUVector__ is
-included. The type is generic and contains a Vector of _Int32_,
-_Int64_, _Float32_ or _Float64_. In Julia the element operators of
-arrays are implemented as the functions __setindex__ and __getindex__.
+Julia and OpenCL C. On the Julia side the type is represented by
+__GPUVector__. The type is generic and is a Vector of _Int32_,
+_Int64_, _Float32_ or _Float64_. The methods for the __setindex!__ and
+__getindex__ functions are implement for the Vector type. These are
+called when the element operator in Julia is used.
 
 ## Function Lowering ##
 
+The kernel function is lowered by substituting a Julia
+__GPUVector{T}__ with the LLVM IR __T*__. The replacement starts by
+considering the parameters of the kernel. Then the use graph of the
+paremeter is considered. 
 
 ## Builtin kernel functions ##
 
@@ -181,11 +186,13 @@ can be inlined by the LLVM optimizer.
 ## Supporting multiple primitive types ##
 
 The implementation supports 32- and 64-bits integer and floating point
-numbers. To facilitate this the function mentioned in
+numbers. To facilitate this the functions mentioned in
 \ref{sec:implementation-details-unboxed} are overloaded for the four
-types. The type information in the Julia implementation is contained
-inside the argument value. The information is not accessible by
-calling the __@code_llvm__ macro. The information is added by the
-Julia module generator as metadata to the module. 
+types. Type information in Julia is contained inside the argument as a
+runtime value. Therefor the information is not accessible by calling
+the __@code_llvm__ macro, running at compile time. This is solved by
+passing the type information in a named metadata node added to the
+module in the module generator. This inplies that the kernel has a fixed
+type and must be generated for each type.
 
 \end{markdown}

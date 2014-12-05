@@ -19,18 +19,20 @@ implementation.
 This project tries to do the same in the realm of GPU
 programming. This is possible due to the fact that Julia is
 implemented on top of LLVM which also is the basis for both NVVM and
-SPIR, the intermediate representations of Nvidia and OpenCL compilers. 
+SPIR, the intermediate representations of both the NVIDIA and the
+OpenCL compiler.
 
 # State of the art #
 
 Programming a GPU started out with a fixed pipeline with programmable
 steps used for rendering 3D graphics. In 2006 with the introduction of
-__CUDA__ by nVidia and __APP__ by AMD in 2007, __GPGPU__ was
-introduced and the pipeline fully programmable. Microsoft released
-__DirectCompute__ along with DirectX11 in 2008 that exposes a API for
-the GPU to the programmer in C++. In 2009 the Khronos Group released
-the first specification of __OpenCL__ which tries to provide a
-platform independent language for programming heterogeneous
+__CUDA__ by NVIDIA and __APP__ by AMD in 2007, __GPGPU__ was
+introduced. GPGPU is short for General Purpose Graphical Processing
+Unit and entailes that the pipeline is fully programmable. Microsoft
+released __DirectCompute__ along with DirectX11 in 2008 that exposes a
+API for the GPU to the programmer in C++. In 2009 the Khronos Group
+released the first specification of __OpenCL__ which tries to provide
+a platform independent language for programming heterogeneous
 systems. The __OpenACC__ standard was released in 2011 enabling
 programmers to execute code on GPUs with directives as OpenMP enables
 multiple threads. In 2012 Microsoft released __C++ AMP__, a C++
@@ -38,21 +40,52 @@ language and programming model extension. Microsoft released a
 compiler for their own __DirectCompute__ framework, and Intel and AMD
 has later released compilers based on the specification. __Numba__
 introduced by Continuum Analytics and is still in development (2014),
-it enables executing Python code on a nVidia GPU.
+it enables executing Python code on a NVIDIA GPU.
 
 Out of these CUDA and OpenCL are most suited for considerations in
 this projects as they can be used as compiler targets. The others
-mentioned are software libraries that build on these underlying standards.
+mentioned are software libraries that build on these underlying
+standards.
+
+# The SIMT model #
+
+This section will provide a brief introduction to the programming
+model (SIMT) exposed to the programmer for both OpenCL \footnote{In
+  general, OpenCL exposes a model called Single Program Multiple Data
+  \cite{}, but on a GPU with a underlying vector architecture this can
+  be considered as SIMT.} and CUDA. SIMT, Single Instruction Mutliple
+Threads, is an abstraction over the hardware technique of SIMD, Single
+Instruction Multiple Data. The model provides the programmer with the
+abstraction that a kernel is executed in an independent thread. The
+kernel usualy takes large one-dimentional arrays as input and output
+parameter. The environment defines index functions that the programmer
+can use to access elements of the data structures. An example kernel
+for vector addition is given in Figure \ref{smit:add}
+
+
+\begin{figure}[H]
+  \begin{minted}{c}
+__kernel void add(long *a, long *b, long *c) {
+  int i = get_global_id(0);
+  c[i] = a[i] + b[i];
+}
+  \end{minted}
+  \caption{OpenCL Vector addition kernel}
+  \label{smit:add}
+\end{figure}
+
 
 # Intermediate Representations #
 
 In the last few years both OpenCL and CUDA has started targeting the
-LLVM compiler infrastructure. Nvidia released part of their compiler
-in 2009. This included the PTX backend and the libNVVM optimizing
-compiler, both based on LLVM. They also introduced a new intermediate
-representation called NVVM which is largely based on LLVM IR. In 2012
-the Khronos Group introduced OpenCL SPIR, a intermediate
-representation also based on LLVM IR. 
+LLVM compiler infrastructure. NVIDIA released part of their compiler
+in 2009 as open source. This included the PTX backend and the libNVVM
+optimizing compiler, both based on LLVM. They also introduced a new
+intermediate representation called NVVM which is largely based on LLVM
+IR. In 2012 the Khronos Group introduced OpenCL SPIR, a intermediate
+representation also based on LLVM IR. As both these IRs was considered
+as targets for this project a short introduction is given is the
+following subsections. 
 
 ## LLVM IR ##
 
@@ -63,12 +96,13 @@ are extensions to it.
 LLVM IR is a compiler internal intermediate representation. It is
 intended as a good representation for compiler optimization and
 analysis. The representation has three forms, a human readable format
-(.ll), a bitcode format (.bc) and an in memory format. These three
-forms are all equivalent.
+(.ll), a bitcode format (.bc) and an in-memory format. These three
+forms are all equivalent, therefore the human readable format is
+presented here.
 
 The format is SSA, Static Single Assignment which makes reasoning
 about the code easy. The language consists of modules that contains a
-target, function declarations and implementations, types
+target, function declarations and implementations, type
 specifications, attributes and metadata.
 
 This is a typical LLVM program:
@@ -96,14 +130,14 @@ attributes #0 = { nounwind ssp uwtable  }
 
 
 The first two lines specifies the underlying target architecture with
-__datalayout__ and __target triple__. Next is a function
-implementation of the __add__ function, the __#0__ binds the function
-to the attributes _nounwind ssp uwtable_. Next a declaration of
-__get_global_id__ follows, then the mentioned metadata. The last two
-lines specifies metadata. LLVM contains both named metadata and
-unnamed. The unnamed section gets assigned numbers _!0_ in this case.
-The _!llvm.ident_ referes to this unnamed node. We see alot of
-referals in the metadata section of LLVM modules.
+_datalayout_ and _target triple_. Next is a function
+implementation of the _add_ function, the _#0_ binds the function
+to the attributes _nounwind ssp uwtable_ specified on line 13. Next a
+declaration of _get_global_id_ follows. The last two lines specifies
+metadata. LLVM contains both named metadata and unnamed. The unnamed
+section gets assigned numbers _!0_ in this case.  The _!llvm.ident_
+referes to this unnamed node. We see alot of referals in the metadata
+section of LLVM modules.
 
 
 ## SPIR ##
@@ -111,9 +145,9 @@ referals in the metadata section of LLVM modules.
 SPIR is OpenCLs new format for representing kernel for execution on
 heterogeneous systems. The specification is a mapping from OpenCL C
 into LLVM IR. SPIR does not add a lot of extra to the LLVM IR. The
-notable differences are __target datalayout__ and __triple__, a __named
-metadata node__ for specifying kernels, specification of __address space
-qualifiers__ and __name mangling rules__. The kernel argument information is
+notable differences are _target datalayout_ and _triple_, a _named
+metadata node_ for specifying kernels, specification of _address space
+qualifiers_ and _name mangling rules_. The kernel argument information is
 carried in the metadata section.
 
 \begin{minted}{llvm}
@@ -148,14 +182,26 @@ The qualifier used in the parameter list of the add functions shows
 how address space qualifiers are utilized in SPIR. This qualifiers
 denotes what type of memory is used on the device.
 
-%Qualifier | Memory   | Comment
-%----------|----------|-----------------------------
-%0         | private  | Private to each work item
-%1         | global   | Global for the entire device
-%2         | constant | Global for the entire device
-%3         | local    | Private to each work group
-%4         | generic  | TODO: I dunno 
-
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|l|l|l|}
+    \hline
+    Qualifier & Memory   & Comment \\
+    \hline
+    \hline
+    0         & private  & Private to each work item \\
+    \hline
+    1         & global   & Global for the entire device \\
+    \hline
+    2         & constant & Global for the entire device \\
+    \hline
+    3         & local    & Private to each work group \\
+    \hline
+    4         & generic  & TODO: I dunno \\
+    \hline
+  \end{tabular}
+\end{table}
+  
 The example above uses only the global memory space.
 
 ### Name Mangling ###
@@ -169,14 +215,14 @@ the Intel Itanium.
 
 ## NVVM ##
 
-NVVM is nVidias intermediate representation used in their LLVM based
+NVVM is NVIDIAs intermediate representation used in their LLVM based
 compiler for CUDA. It does as SPIR, represent device kernels that are
 intended to be executed on a device, but solely GPUs. NVVM ads to LLVM
 IR a set of intrinsic functions for controlling the GPU. Among these
 are barriers, address space conversions, special register
 accessors. The NVVM Cuda Compiler compiles NVVM IR into PTX which is
 loaded into a the devices with either the CUDA or OpenCL driver
-provided by nVidia. Like SPIR it defines targets, address space
+provided by NVIDIA. Like SPIR it defines targets, address space
 qualifiers and a metadata node to declare a function as a kernel.
 
 \begin{minted}{llvm}
@@ -212,21 +258,27 @@ example above the add function.
 
 ### Address Space Qualifiers ###
 Like SPIR NVVM specifies address space qualifiers. The differ only
-slightly from the OpenCL definition and is more tailored to the nVidia
+slightly from the OpenCL definition and is more tailored to the NVIDIA
 GPU architecture.
-
-%Qualifier | Memory   | Comment                      | OpenCL equivalent
-%----------|----------|------------------------------|------------------
-%0         | generic  | TODO: dunno                  | generic? 
-%1         | global   | Global for the entire device | global
-%3         | shared   | Private to each work group   | local
-%4         | constant | Global for the entire device | constant
-%5         | local    | Private to each work item    | private
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|l|l|l|l|}
+    \hline
+    Qualifier & Memory   & Comment                      & OpenCL equivalent \\
+    \hline
+0         & generic  & TODO: dunno                  & generic?  \\
+1         & global   & Global for the entire device & global \\
+3         & shared   & Private to each work group   & local \\
+4         & constant & Global for the entire device & constant \\
+5         & local    & Private to each work item    & private \\
+    \hline
+  \end{tabular}
+\end{table}
 
 
 ## Summary ## 
 
-As the above discussion shows, SPIR and NVVM in the gist very
+As the above discussion shows, SPIR and NVVM are in the gist very
 similar. They both define multiple address spaces, builtin
 functionality and a way to distingush kernel functions.
 
@@ -234,10 +286,41 @@ functionality and a way to distingush kernel functions.
 
 Both these intermediate representations are inteded as compiler
 targets for new programming languages. The NVVM is only supported by
-nVidias drivers and can only be executed on nVidia GPUs. SPIR on the
+NVIDIAs drivers and can only be executed on NVIDIA GPUs. SPIR on the
 other hand can potentialy execute on all platforms that execute
-OpenCL. Unfortunalty at the time of writing a implementation on nVidia
-is not available. But both Intel an AMD has support for SPIR.
+OpenCL. Unfortunalty at the time of writing a implementation on NVIDIA
+is not available, but both Intel an AMD has support for SPIR in their
+newest hardware.
 
-# Hardware Platform #
+# A governing factor in Hardware Platform #
+
+A external governing factor for the PTX.jl implementation has been the
+available hardware for testing. The workstation listed in Table
+\ref{tab:hw} was provided in the NTNU
+HPC-Lab\footnote{http://research.idi.ntnu.no/hpc-lab/} by Dr. Anne
+C. Elster.
+
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|l|l|l|}
+    \hline
+    & CPU & GPU \\
+    \hline
+    \hline
+    Name & Intel i7 & NVIDIA GTX 480 \\
+    \hline
+    \# of Cores & 4 & 448 \\
+    \hline
+    Memory &  &  \\
+    \hline
+  \end{tabular}
+  \caption{}
+  \label{tab:hw}
+\end{table}
+
+As this platform consists of a NVIDIA GPU the IR chosen were NVVM. As
+the outlines in this section implies, changing the library to target
+SPIR instead can be easily done.
+
 \end{markdown}
