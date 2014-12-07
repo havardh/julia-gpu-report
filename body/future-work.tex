@@ -1,7 +1,20 @@
 \chapter{Future Work}
 \begin{markdown}
 
-  - implementing julia types on the GPU
-  
+The PTX.jl library main design objective was to be a full system
+integration. This leads to the posibility optimize and extend each
+subcomponent of the system. Here includes a more robust compiler (see
+Section \ref{sec:disc:comp}), implementing all of Julia primitve
+types. In addition the alternative paths mentioned in Section
+\ref{sec:meth} such as a full fledged Julia language implementation on
+the GPU can be considered.
+
+From a performance viewpoint the fact that PTX.jl only supports global
+adressing is a key limitation. To be able to optimize kernels for
+speed, extensive utilization of local memory is required. The OpenCL
+runtime library includes a lot of function operating on
+vectors. Adding vector types \footnote{_Vector types_ here referes to
+  OpenCLs _float4_ and friends.} would enable utilizing these
+functions.
 
 \end{markdown}

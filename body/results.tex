@@ -44,11 +44,6 @@ runs. the time to copy data to and from the device is combined in
 memory overhead. The reported data is memory overhead, execution time
 of the kernel and total execution time, for each problem size.
 
-## Notes on bias when timing a dynamic programming language ##
-
-- garbage collection
-- run first to jit
-- timing async dispatch
 
 # Gaussian Blur #
 
@@ -57,7 +52,7 @@ this benchmark we compare the performance of the julia kernel compared
 to kernel implementations in CUDA C and OpenCL C. All three kernels are
 scheduled using the Julia CUDA or OpenCL bindings. 
 
-## Visual evoluation of correctness ##
+## Visual evaluation of correctness ##
 
 This section evaluates the kernels correctness visually. The kernels
 are exectued on an input image and the result is shown in Figure
@@ -107,20 +102,37 @@ The performance is recorded as described in Section
 \ref{sec:res:measure}. The result is presented in Figure \ref{fig:res:blur}.
 
 \begin{figure}[H]
-  \begin{center}
-  \includegraphics[width=300px]{body/results/blur/total.png}
-  \includegraphics[width=200px]{body/results/blur/exec.png}
-  \includegraphics[width=200px]{body/results/blur/mem.png}
-    \caption{Performance of Blur kernel}
-    \label{fig:res:blur}
-  \end{center}
+  \centering
+  \begin{subfigure}{.33\textwidth}
+    \centering
+    \includegraphics[width=1\textwidth]{body/results/blur/mem.png}
+    \caption{Memory Transfer}
+    \label{fig:res:blur:int32:mem}
+  \end{subfigure}%
+  \begin{subfigure}{.33\textwidth}
+    \centering
+    \includegraphics[width=1\textwidth]{body/results/blur/exec.png}
+    \caption{Execution time}
+    \label{fig:res:blur:int32:exec}
+  \end{subfigure}%
+  \begin{subfigure}{.33\textwidth}
+    \centering
+    \includegraphics[width=1\textwidth]{body/results/blur/total.png}
+    \caption{Total Time}
+    \label{fig:res:blur:int32:tot}
+  \end{subfigure}%
+  \caption{Performance of Blur kernel}
+  \label{fig:res:blur}
 \end{figure}
 
 Figure \ref{fig:res:blur} reveals the fact that the kernels generated
 by PTX.jl is comparable to CUDA and OpenCL. Comparing the execution
-time of CUDA and PTX.jl
+time of CUDA and PTX.jl, we see that they are equal over all input
+sizes. 
 
 # Matrix Multiply #
+\label{sec:res:mm}
+
 
 The Matrix Multiplication benchmark is a simple $C = A * B$ matrix
 mulitplication where $A, B, C$ all are $n*n$ matrices. The benchmark
@@ -251,12 +263,9 @@ surpass the CPU at $n=50$ for 32-bits, and at $n=38$ for 64-bits.
   \label{fig:res:mm:float64}
 \end{figure}
 
-## Execution time CUDA vs PTX.jl ##
-
-
-Another interesting note about the execution time is the difference
-between the CUDA and PTX.jl implementation. This is explored more in
-Section \ref{sec:res:cuda-v-ptx}.
-dunno!
+For the floating point benchmarks we see a diffenrent picture compared
+to their integer conterparts. The computations actually scales as good
+on the CPU as on the GPU. With the CPU having a 1.3x advantage for
+$n=4096$ on single precision and the GPU 1.4X on double precision.
 
 \end{markdown}
