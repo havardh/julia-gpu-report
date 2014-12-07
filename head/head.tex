@@ -10,16 +10,17 @@
 \input{head/commands.tex}
 \input{head/variables.tex}
 
-\input{head/titlepage.tex}
 
 \input{body/glossary.tex}
 
 %%% BEGIN DOCUMENT
 \begin{document}
 
-\newpage
-\maketitle
-\tableofcontents % the asterisk means that the contents itself isn't put into the ToC
+
+\input{head/titlepage.tex}
+
+\setcounter{tocdepth}{1}
+\tableofcontents
 
 \input{body/body.tex}
 
