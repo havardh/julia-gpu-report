@@ -200,4 +200,16 @@ passing the type information in a named metadata node added to the
 module in the module generator. This inplies that the kernel has a fixed
 type and must be generated for each type.
 
+## Inexpensive Linking ##
+
+The linking functionality of \gls{LLVM} enables linking a module with
+all the function implementations and definitions of another
+module. This is not necessary for the kernel compiler and running dead
+code elimination after linking is not very performant. As a
+consequense the linking procedure from the \gls{pocl} \cite{pocl} compiler is
+included and used when linking a kernel to the builtin definitions
+exposed by libclc. The \gls{pocl} linker only copies the functions
+that are in the call graph of functions in the original module, and
+ignores functions that are not called.
+
 \end{markdown}
