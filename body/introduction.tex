@@ -23,13 +23,13 @@ languages for decades. This relates to the fact that the efficiency of
 statically compiled languages could not be challenged by dynamic
 languages that usualy are interpreted.  With the recent developments
 in dynamic languages through utilization of \gls{JIT} compiling and
-tools like the \gls{LLVM} compiler infrastructure this truth has been
-challanged. Comparable perforamance has been achived while retaining
-the expressive powers of a dynamic language. In this report we explore
-these new powers in the context of a heterogeneous computer system. We
-evaluate the performance of kernels defined in a high level language
-compared to low level languages. And look at what we gain in
-programmer productivity.
+tools like the \gls{LLVM} \cite{llvm} compiler infrastructure this
+truth has been challanged. Comparable perforamance has been achived
+while retaining the expressive powers of a dynamic language. In this
+report we explore these new powers in the context of a heterogeneous
+computer system. We evaluate the performance of kernels defined in a
+high level language compared to low level languages. And look at what
+we gain in programmer productivity.
 
 ## Heterogeneous Computing ##
 
@@ -37,12 +37,12 @@ programmer productivity.
 
 Heterogeneous Computing referes to computing on a computer system that
 consisits of accelerators that are specialized for certain tasks. The
-most well known accelerator is the \gls{GPU} which consists of a large
-number of simple computing cores and can compute SPMD, Single Program
-Mulitple Data, programs highly efficient. A different example is the
-ARM big.LITTLE \cite{big.little} architecture. This architecure
-combines two differnet core types, one small (low power) and one big
-(high performance) into one chip.
+most well known accelerator is the \gls{GPU}, which consists of a
+large number of simple computing cores and can compute \gls{SPMD}
+programs highly efficient. A different example is the ARM big.LITTLE
+\cite{big.LITTLE} architecture. This architecure combines two
+differnet core types, one small (low power) and one big (high
+performance) into one chip.
 
 ### Programming environments ###
 
