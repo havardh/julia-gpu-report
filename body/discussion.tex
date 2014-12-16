@@ -11,21 +11,22 @@ of the PTX.jl described in Chapters \ref{chap:impl} and
 
 As mentioned in Section \ref{sec:meth:lib-b-comp} the decision to
 implement PTX.jl as a library was not the most obvious one. This was
-not a clear decision taken up front, but more a alternative that
+not a clear decision taken up front, but more an alternative that
 materialized when the changes to compiler was removed due to library
 level alternatives. The most improtant parts was the facts that both
 inlining could be disabled and implementing multiple datatypes
 primitive datatypes was made possible. The library can serve as a
 basis to future investigate new patterns for GPU programming in Julia
-without having modify the compiler.
+without having modify the compiler. And a small codebase to experiment
+with writing compiler passes for the IR generated. 
 
 ## Unboxing of arrays ##
-
+ 
 The approach mentioned in Section \ref{sec:meth:arrays:low-level}, the
-unboxing of arrays was considered an easy first iteration step in
+unboxing of arrays, was considered an easy first iteration step in
 order to establish the whole prototype system. This prototype can now
 be extended with more sophisticated translation from Julia to PTX
-code. The performance results depicted in Section \ref{sec:res} can
+code. The performance results depicted in Section \ref{chap:res} can
 serve as a benchmark for future higher level implementations. 
 
 # Implementation #
@@ -49,15 +50,14 @@ language.
 
 ## Offloading work to the GPU ##
 
-The micro benchmark presented in the Section \ref{sec:res:mm}
-indicates that offloading even relatively small matrix computations to
-the GPU will provide a speedup. This even when the implementations
-presented in this reported are unoptimized for perforamance. Usually
-when looking to exploit the parallelizm of a GPU, the entire
-application is implemented on the GPU. Given the results there is
-reason to explore a more fine-grained parallelization of a program. A
-proposition for a framework for this is presented in the next
-Subsection.
+The benchmark presented in the Section \ref{sec:res:mm} indicates that
+offloading even relatively small matrix computations to the GPU will
+provide a speedup. This even when the implementations presented in
+this reported are unoptimized for perforamance. Usually when looking
+to exploit the parallelizm of a GPU, the entire application is
+implemented on the GPU. Given these results there is reason to explore
+a more fine-grained parallelization of a program. A proposition for a
+framework for this is presented in the next paragraph.
 
 ### Framework for fine-grained offloading ###
 
@@ -65,21 +65,46 @@ Building on the _GPUArray_ type presented in Section
 \ref{sec:meth:ptx} a framework for fine-grained offloading can be
 built. Extending the type with operators and methods for Matrix and or
 Vector operations. The operations can also have built in autotuning to
-decide when to offload to the GPU and when to keep the computation
-on the CPU.
+decide when to offload to the \gls{GPU} and when to keep the computation
+on the \gls{CPU}.
 
 ## Integer vs. Floating point performance in Matrix Multiplication ##
 
 Summarizing the results in Section \ref{sec:res:mm} we see that the
-floating point perforamance of the CPU is far better than the
-interger. The degration of integer mutliply performance on the CPU
-enables a speedup with a naive GPU implementation already at $38*38$
-matrices for 64-bit integers values. This difference seems to only
+floating point performance of the \gls{CPU} is far better than the
+interger. The degration of integer mutliply performance on the
+\gls{CPU} enables a speedup with a naive GPU implementation already at
+$38*38$ matrices for 64-bit integers values. This difference seems to
 come from the fact that matrix multiplication scales badly on the CPU,
-the GPU implementation scales equaly well on 
+the GPU implementation scales equaly well on both the floating point
+and the interger benchmarks.
 
-TODO
-- Why does OpenCL have lower performance for Blur
+
+\begin{figure}[H]
+  
+
+  \begin{minted}[linenos,numbersep=5pt,gobble=2,frame=lines,framesep=2mm]{julia}
+  julia> A = rand(Int64, 2^10, 2^10);
+  julia> B = rand(Int64, 2^10, 2^10);
+  julia> A * B;
+  julia> gc()
+  julia> @time A * B;
+  elapsed time: 1.354795104 seconds (8402840 bytes allocated)
+  
+  julia> A = rand(Float64, 2^10, 2^10);
+  julia> B = rand(Float64, 2^10, 2^10);
+  julia> A * B;
+  julia> gc()
+  julia> @time A * B;
+  elapsed time: 0.070830169 seconds (8388800 bytes allocated)
+  \end{minted}
+  \caption{Comparing Floating point and integer performace}
+  \label{fig:julia:mm}
+\end{figure}
+
+Figure \ref{fig:julia:mm} shows a minimal benchmark displaying the
+performance difference for $1024*1024$ matrices. We see that the
+floating point version is 19x faster than the integer version.
 
 
 ## Notes on bias when timing a dynamic programming language ##
@@ -91,24 +116,25 @@ Dispatch.
 
 ### Garbage Collection ###
 
-In a garbage collected language this mechanism must be assumed to
-possibly trigger at any time. There exists different types of
-collection algorithms and they will affect the results in different
+In a automicaly garbage collected language, this mechanism must be
+assumed to possibly trigger at any time. There exists different types
+of collection algorithms and they will affect the results in different
 ways. In the Julia language we have two mechanism to remove this
-biased from our results. Firsly the timing macro _@time_ reports the
-prosentage of time spend in the \gls{GC}. By ensuring that this number
+biased from our results. Firsly the timing macro \textit{@time} reports the
+percentage of time spend in the \gls{GC}. By ensuring that this number
 is zero we elimintate the overhead. This can be ensured by the other
 mechanism, namely the _gc()_ function. This function will run a
 blocking garbage collection iteration. By inserting this before the
-timed function call, we can prevent the \gls{GC} to be triggered while
-timing, unless the function call it self allocates and deallocates
-enough memory to be subject to \gls{GC}.
+timed function call, we can increase likelyhood that the \gls{GC} will
+not be triggered while timing. This is unless the function call it
+self allocates and deallocates enough memory to be subject to
+\gls{GC}. But this will show up in the report from the _@time_ function.
 
 
-\begin{figure}
-  \begin{minted}{julia}
-gc()
-@time foo()    
+\begin{figure}[H]
+  \begin{minted}[linenos,numbersep=5pt,gobble=2,frame=lines,framesep=2mm]{julia}
+  gc()
+  @time foo()    
   \end{minted}
   \caption{Running Garbage Collection proir to timing}
 \end{figure}
@@ -117,17 +143,16 @@ gc()
 
 The Julia programming language is implemented with a \gls{JIT}. This
 means that the functions are compiled when it is invoked the first
-time. As we do not want to time the Julia \gls{JIT} compilation we
+time. As we do not want to time the Julia \gls{JIT} compilation, we
 need to force the system to \gls{JIT} compile the function before we
 time the function. In Julia this is done by simply calling the
 function once. This is done prior to timing.
 
-
-\begin{figure}
-  \begin{minted}{julia}
-foo()
-# ...
-@time foo()
+\begin{figure}[H]
+  \begin{minted}[linenos,numbersep=5pt,gobble=2,frame=lines,framesep=2mm]{julia}
+  foo()
+  # ...
+  @time foo()
   \end{minted}
   \caption{Triggering JIT before timing}
 \end{figure}
@@ -138,35 +163,64 @@ Both the \gls{CUDA} and \gls{OpenCL} runtime libraries provides
 functions for moving data to and from the GPU and executing the
 kernels on the \gls{GPU}. These functions, except copy from GPU to CPU
 are implemented as asynchronous calls, so that the GPU and CPU can
-work concurrently. This means that timing a execute kernel call alone
-will not actually time the execution of the kernel. To ensure that we
-get the execution time we insert a synchronization point after the
-function and time these two together. See Figure \ref{fig:disc:async-call}
+work concurrently. This means that timing a _execute kernel_ call
+alone, will not actually time the execution of the kernel. To ensure
+that we get the execution time we insert a synchronization point after
+the function and time these two together. Figure
+\ref{fig:disc:async-call:sched} show how to time the scheduling of
+exection, while Figure \ref{fig:disc:async-call:exec} times the actual
+exection.
 
+\newminted{julia}{linenos}
+\begin{figure}[H]
+  \begin{minted}[linenos,numbersep=5pt,gobble=2,frame=lines,framesep=2mm]{julia}
+  @time Driver.execute(kernel)
+  \end{minted}
+  \caption{Timing Schedule Kernel}
+  \label{fig:disc:async-call:sched}
+\end{figure}
 
 \begin{figure}[H]
-  \begin{subfigure}{.49\textwidth}
-    \begin{minted}{julia}
-@time Driver.execute(kernel)
-    \end{minted}
-    \caption{Timing Schedule Kernel}
-    \label{fig:disc:async-call:sched}
-  \end{subfigure}
-
-  \begin{subfigure}{.49\textwidth}
-    \begin{minted}{julia}
-@time begin
-  Driver.execute(kernel)
-  Driver.synchronize()
-end
-    \end{minted}
-    \caption{Timing Execution Time}
-    \label{fig:disc:async-call:exec}
-  \end{subfigure}
-
-  \caption{Timing Asynchronous call}
-  \label{fig:disc:async-call}
-  
+  \begin{minted}[linenos,numbersep=5pt,gobble=2,frame=lines,framesep=2mm]{julia}
+  @time begin
+    Driver.execute(kernel)
+    Driver.synchronize()
+  end
+  \end{minted}
+  \caption{Timing Execution Time}
+  \label{fig:disc:async-call:exec}
 \end{figure}
+
+
+## Programmer Productivity ##
+
+This section discusses the results presented in Section
+\ref{sec:res:productivity} of programmer productivity obtained by
+PTX.jl compared to CUDA and OpenCL C.
+
+### Lines of Codes ###
+
+Table \ref{tab:loc} in Section \ref{sec:res:loc} shows that
+the LOC metric is not decreased by using the PTX.jl library.The target
+of the version of PTX.jl presented in this report is a fully working
+system. It does not include a lot of the high level features of the
+language. Therefore the poor performance on this metric was expected.
+
+### Dynamic Typing ###
+
+The fact that one kernel definition can handle multiple primitive
+types leads to a big potencial reduction in LOC. A note here is that
+CUDA has a C++ frontend and OpenCL might get one in the
+future. Written in C++, a kernel can be templetized over multiple
+types and implemented provide the same reduction.
+
+### Host and Device code in one language ###
+
+The design philosophy of the Julia programming language is to enable
+users of high level languages to take low level control within the
+language. The main contribution of the PTX.jl library is to enable
+this for GPU computing. This improves over the existing libraries
+available for the langauge where the programmer must use C or C++ to
+define the kernels executed on the Device.
 
 \end{markdown}
