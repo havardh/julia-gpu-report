@@ -6,9 +6,14 @@
 The follwing sections describes results when comparing the proposed
 PTX.jl library to the existing alternatives for Julia. The
 alternatives explored are the CUDA and OpenCL bindings provided as
-external Julia modules through the package management system. In
-addition a comparisont to the Julia core math library is presented.
+external Julia modules through the package management system. The
+kernels used marked with OpenCL and CUDA are written in C. In addition
+a comparison to the Julia core math library is presented.  Section
+\ref{sec:res:productivity} includes a small analysis of programmer
+productivity.
 
+# Benchmarks #
+\label{sec:res:bench}
 
 \begin{table}[H]
   \centering
@@ -28,33 +33,54 @@ addition a comparisont to the Julia core math library is presented.
 The benchmarks presented in Table \ref{res:benchmarks} are well known
 and general compute kernels. Both benchmarks are implemented naively,
 meaning no special optimizations are applied. This is done to make the
-implementation easily comparable. As the CPU implementations is part
-of the optimized core Julia library, this descission should be take
-into consideration when comparing CPU and GPU performance.
+implementation easily comparable. Note that the CPU implementation of
+the Matrix Multiplication benchmark is part of the optimized core
+Julia math library, this should be take into consideration when
+comparing CPU and GPU performance.
 
 # Method and Measurement #
 \label{sec:res:measure}
 
-For both benchmarks all the compute kernels are executed with the same
-randomly generated input. For each execution the time to copy data to
-and from the device along with the execution time is recorded.  For
-each problem size, $n$ sets of input parameters are generated and
-executed, the reported execution time is the average over all these
-runs. the time to copy data to and from the device is combined in
-memory overhead. The reported data is memory overhead, execution time
-of the kernel and total execution time, for each problem size.
-
+The benchmarks are executed with the same randomly generated input
+data. For each problem size the kernel is executed 100 times and the
+average running time is reported.
 
 # Gaussian Blur #
 
-The gaussian blur kernel is an common image processing operation. With
+The gaussian blur kernel is a common image processing operation. With
 this benchmark we compare the performance of the julia kernel compared
 to kernel implementations in CUDA C and OpenCL C. All three kernels are
 scheduled using the Julia CUDA or OpenCL bindings. 
 
+## Evaluation of correctness ##
+
+To evaluate the correctness of the benchmark a test set of 256*256
+floating point numbers were generated and the kernel was executed once
+for each implmenetation. Table \ref{tab:res:blur:diff} show the the
+sum of the element-wise difference for the PTX.jl implementation
+compared to OpenCL and CUDA.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|l|r|r|}
+    \hline
+    Datatype & OpenCL vs PTX.jl & CUDA vs PTX.jl \\
+    \hline
+    Float32  & 0.0 & 0.0 \\
+    \hline
+  \end{tabular}
+  \caption{Element-wise difference of a 256*256 blur filter compared to PTX.jl}
+  \label{tab:res:blur:diff}
+\end{table}
+
+Table \ref{tab:res:blur:diff} shows that all the three implementations
+are functionally equivalent.
+
 ## Visual evaluation of correctness ##
 
-This section evaluates the kernels correctness visually. The kernels
+As the previous evaluation of correctness could include the same error
+propagated through all the implementation we consider a visual
+evaluation as well. This evaluation is easier to verify. . The kernels
 are exectued on an input image and the result is shown in Figure
 \ref{fig:res:blur:pic}.
 
@@ -91,12 +117,12 @@ are exectued on an input image and the result is shown in Figure
   \label{fig:res:blur:pic}
 \end{figure}
 
-
 By examining the pictures in Figure \ref{fig:res:blur:pic} we can see
-that each implementation has the same effect on the original image to
-the left. This is a visual proof of correct behaviour.
+that each implementation has the same and correct blur effect on the
+original image in \ref{fig:res:blur:pic:input}.
 
 ## Performace evaluation ##
+\label{sec:res:blur:perf}
 
 The performance is recorded as described in Section
 \ref{sec:res:measure}. The result is presented in Figure \ref{fig:res:blur}.
@@ -128,11 +154,14 @@ The performance is recorded as described in Section
 Figure \ref{fig:res:blur} reveals the fact that the kernels generated
 by PTX.jl is comparable to CUDA and OpenCL. Comparing the execution
 time of CUDA and PTX.jl, we see that they are equal over all input
-sizes. 
+sizes. The OpenCL kernel performes slighly worse than the other
+kernels. The jump in Memory Transfer time at approximetly n = 2500
+seems to be related to the implementation between the CPU and GPU. The
+jump is observered for the same input size for both benchmarks and
+both the CUDA and OpenCL bindings.
 
 # Matrix Multiply #
 \label{sec:res:mm}
-
 
 The Matrix Multiplication benchmark is a simple $C = A * B$ matrix
 mulitplication where $A, B, C$ all are $n*n$ matrices. The benchmark
@@ -140,8 +169,8 @@ is executed for all the supported datatypes, 32 and 64 bits integer
 and floating point numbers. We here compare the Julia kernel to a CPU
 implementation and a CUDA kernel created by the __nvcc__ compiler.
 The CPU implementation is simply the matrix multiply operator in the
-Julia language. Therefor the memory overhead for the CPU version is
-zero. We look at the differences between floating point and interger
+Julia language. Therefore the memory overhead for the CPU version is
+zero. We look at the differences between floating point and integer
 performance.
 
 ## Integer ##
@@ -149,7 +178,7 @@ performance.
 Figures \ref{fig:res:mm:int32} and \ref{fig:res:mm:int64} shows the
 average execution time when the problem size is varied. The section is
 chosen to describe the point where computing the product goes from
-being faster on the CPU to being faster on the GPU. 
+being faster on the CPU to being faster on the GPU.
 
 \begin{figure}[H]
   \centering
@@ -263,9 +292,55 @@ surpass the CPU at $n=50$ for 32-bits, and at $n=38$ for 64-bits.
   \label{fig:res:mm:float64}
 \end{figure}
 
-For the floating point benchmarks we see a diffenrent picture compared
+For the floating point benchmarks we see a different picture compared
 to their integer conterparts. The computations actually scales as good
 on the CPU as on the GPU. With the CPU having a 1.3x advantage for
-$n=4096$ on single precision and the GPU 1.4X on double precision.
+$n=4096$ on single precision and the GPU at 1.4X on double precision.
+
+The significat increase in memory access time is commented in
+Section \ref{sec:res:blur:perf}.
+
+# Programmer Productivity #
+\label{sec:res:productivity}
+
+The \gls{LOC} metric is a widely used measurement the complexity of a
+computer program. Minimizing this metric can lead to increased
+programmer productivity. 
+
+## LOC ##
+\label{sec:res:loc}
+
+Table \ref{tab:loc} tabulates the LOC for the kernels for the two
+benchmarks presented in Chapter \ref{sec:res:bench}.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|l|l|l|l|l|}
+    \hline
+    & \textbf{CPU} & \textbf{OpenCL C} & \textbf{CUDA C} & \textbf{PTX.jl} \\
+    \hline
+    Gaussian Blur   & N/A & 19       & 19     & 19 \\
+    \hline
+    Matrix Multiply & 588 & N/A      & 19     & 22 \\
+    \hline
+  \end{tabular}
+  \caption{Lines of Code in kernels}
+  \label{tab:loc}
+\end{table}
+
+The results in Table \ref{tab:loc} shows that the LOC was not reduced
+for any of the kernels compared to OpenCL and CUDA C. For the CPU
+implemententation the count is the entire _base/linalg/matmul.jl_
+implementation. This is included to indicate the size of an optimized
+implemenentations. The implementations for OpenCL, CUDA and PTX.jl are
+not optimized.
+
+## Dynamic Typing ##
+
+The fact that the kernels implemented with PTX.jl are written in a
+dynamic language, enables one kernel definition to handle multiple
+primitive types. This caused the Matrix Multiplication benchmark to be
+implemented in as one kernel, while the CUDA C had to be implemented
+with one kernel per type, totaling in four implementations.
 
 \end{markdown}
