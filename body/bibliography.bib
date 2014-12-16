@@ -32,7 +32,7 @@
   }
 
 @article{big.LITTLE,
-  author = {Peter Greenhalgh},
+  author = {Peter Greenhalgh and ARM},
   title = "{big.LITTLE Processing with ARM Cortex-A15 \& Cortex-A7}",
   month = {September},
   year = {2011},
@@ -51,4 +51,150 @@ keywords={OpenCL; LLVM; GPGPU; VLIW; SIMD; Parallel programming; Heterogeneous p
 author={Jääskeläinen, Pekka and de La Lama, CarlosSánchez and Schnetter, Erik and Raiskila, Kalle and Takala, Jarmo and Berg, Heikki},
 pages={1-34},
 language={English}
+}
+
+@misc{libclc,
+  title = {libclc},
+  year = {2012},
+  author = {Peter Collingbourne},
+  howpublished = {\url{http://libclc.llvm.org/}}
+}
+
+@article{pyopencl,
+  author    = {Andreas Kl{\"{o}}ckner and
+               Nicolas Pinto and
+               Yunsup Lee and
+               Bryan C. Catanzaro and
+               Paul Ivanov and
+               Ahmed Fasih},
+  title     = {PyCUDA and PyOpenCL: A Scripting-Based Approach to GPU Run-Time Code Generation},
+  journal   = {CoRR},
+  volume    = {abs/0911.3456},
+  year      = {2011},
+  url       = {http://arxiv.org/abs/0911.3456},
+  timestamp = {Mon, 05 Dec 2011 18:05:09 +0100},
+  biburl    = {http://dblp.uni-trier.de/rec/bib/journals/corr/abs-0911-3456},
+  bibsource = {dblp computer science bibliography, http://dblp.org}
+}
+
+@techreport{copperhead,
+    Author = {Catanzaro, Bryan and Garland, Michael and Keutzer, Kurt},
+    Title = {Copperhead: Compiling an Embedded Data Parallel Language},
+    Institution = {EECS Department, University of California, Berkeley},
+    Year = {2010},
+    Month = {Sep},
+    URL = {http://www.eecs.berkeley.edu/Pubs/TechRpts/2010/EECS-2010-124.html},
+    Number = {UCB/EECS-2010-124},
+    Abstract = {Modern parallel microprocessors deliver high performance on applications that expose substantial fine-grained data parallelism. Although data parallelism is widely available in many computations, implementing data parallel algorithms in low-level languages is often an unnecessarily difficult task. The characteristics of parallel microprocessors and the limitations of current programming methodologies motivate our design of Copperhead, a high-level data parallel language embedded in Python. The Copperhead programmer describes parallel computations via composition of familiar data parallel primitives supporting both flat and nested data parallel computation on arrays of data. Copperhead programs are expressed in a subset of the widely used Python programming language and interoperate with standard Python modules, including libraries for numeric computation, data visualization, and analysis.
+In this paper, we discuss the language, compiler, and runtime features that enable Copperhead to efficiently execute data parallel code. We define the restricted subset of Python which Copperhead supports and introduce the program analysis techniques necessary for compiling Copperhead code into efficient low-level implementations. We also outline the runtime support by which Copperhead programs interoperate with standard Python modules. We demonstrate the effectiveness of our techniques with several examples targeting the CUDA platform for parallel programming on GPUs. Copperhead code is concise, on average requiring 3.6 times fewer lines of code than CUDA, and the compiler generates efficient code, yielding 45-100% of the performance of hand-crafted, well optimized CUDA code.}
+}
+
+@mics{JuliaGPU,
+  title = {JuliaGPU},
+  publisher = {GitHub},
+  howpublished = {\url{https://github.com/juliagpu}},
+  note = {Accessed: 2014-12-12}
+}
+
+@misc{numba,
+  title = {Numba},
+  author = {Continumm Analytics},
+  howpublished = {\url{http://numba.pydata.org/}},
+  note = {Accessed: 2014-12-12}
+}
+
+@misc{nvvm,
+  title = {NVVM},
+  author = {NVIDIA},
+  howpublished = {\url{http://docs.nvidia.com/cuda/nvvm-ir-spec/index.html}},
+  note = {Accessed: 2014-12-12}
+}
+
+@MISC{opencl,
+    author = {Khronos and Aaftab Munshi},
+    title = {The OpenCL Specification Version: 1.0},
+    year = {}
+}
+
+@MISC{spir,
+    author = {Khronos},
+    title = {The OpenCL Specification Version: 1.2},
+    year = {2013}
+}
+
+@manual{cuda,
+	author = "{NVIDIA Corporation}",
+	title = "{NVIDIA CUDA C Programming Guide}",
+	month = "August",
+	year = 2014,
+  url = {http://docs.nvidia.com/cuda/pdf/CUDA_C_Programming_Guide.pdf}
+}
+
+@misc{app,
+  title = {Accelerated Parallel Processing},
+  author = {Advanced Micro Devices},
+  howpublished = {\url{http://developer.amd.com/tools-and-sdks/opencl-zone/amd-accelerated-parallel-processing-app-sdk/}},
+  note = {Accessed: 2014-12-12}
+}
+
+@misc{openacc,
+  title = {The OpenACC Application Programming Interface},
+  author = {CAPS Enterprise and Cray Inc. and NVIDIA and the Portland Group},
+  year = {2011},
+  month = {November}
+}
+
+@mics{julia-dev,
+  title = {Julia Developer Mailing list},
+  howpublished = {\url{https://groups.google.com/forum/!forum/julia-dev}},
+  note = {Accessed: 2014-12-12}
+}
+
+@misc{directx,
+  title = {Microsoft Direct X},
+  howpublished = {\url{https://support.microsoft.com/kb/179113/}},
+  note = {Accessed: 2014-12-12}
+}
+
+@article{openmp,
+  title={OpenMP: an industry standard API for shared-memory programming},
+  author={Dagum, Leonardo and Menon, Ramesh},
+  journal={Computational Science \& Engineering, IEEE},
+  volume={5},
+  number={1},
+  pages={46--55},
+  year={1998},
+  publisher={IEEE}
+}
+
+@misc{amd-amp,
+  title = {AMD: C++ Accelerated Massive Parallelism},
+  howpublished = {\url{https://bitbucket.org/multicoreware/cppamp-driver-ng/wiki/Home}},
+  year = {2014},
+  note = {Accessed: 2014-12-12}
+}
+
+@misc{c++amp,
+  title = {C++ Accelerated Massive Parallelism},
+  howpublished = {\url{http://msdn.microsoft.com/en-us/library/hh265137.aspx}},
+  note = {Accessed: 2014-12-12}
+}
+
+@misc{nvptx,
+  title = {LLVM NVPTX Backend},
+  howpublished = {\url{http://llvm.org/docs/NVPTXUsage.html}},
+  note = {Accessed: 2014-12-12}
+}
+
+@misc{shelvinpark,
+  title = {Shelvin Park},
+  author = {Intel},
+  howpublished = {\url{http://blogs.msdn.com/b/nativeconcurrency/archive/2012/11/16/introducing-shevlin-park-a-proof-of-concept-c-amp-implementation-on-opencl.aspx}},
+  note = {Accessed: 2014-12-12}
+}
+
+@misc{libnvvm,
+  title = {CUDA LLVM Compiler},
+  author = {NVIDIA},
+  howpublished = {\url{https://developer.nvidia.com/cuda-llvm-compiler}}
 }

@@ -34,18 +34,18 @@ introduction of __\gls{CUDA}__ \cite{cuda} by NVIDIA and __\gls{APP}__
 \cite{app} by AMD in 2007, \gls{GPGPU} was introduced. \gls{GPGPU}
 entailes that the pipeline is fully programmable. This enables the
 \gls{GPU} to be used for non-graphic related applicaion.  Microsoft
-released __DirectCompute__ \cite{directcompute} along with DirectX11
-in 2008 that exposes a \gls{API} for the \gls{GPU} to the programmer
-in C++. In 2009 the Khronos Group released the first specification of
+released __DirectCompute__ along with DirectX11 \cite{directx} in 2008
+that exposes a \gls{API} for the \gls{GPU} to the programmer in
+C++. In 2009 the Khronos Group released the first specification of
 __\gls{OpenCL}__ \cite{opencl} which tries to provide a platform
 independent language for programming heterogeneous systems. The
-__OpenACC__ \cite{openac} standard was released in 2011 enabling
+__OpenACC__ \cite{openacc} standard was released in 2011 enabling
 programmers to execute code on \gls{GPU}s with directives as OpenMP
 \cite{openmp} enables multiple threads. In 2012 Microsoft released
 __C++ \gls{AMP}__ \cite{c++amp}, a C++ language- and programming model
 extension. Microsoft released a compiler for their own DirectCompute
 framework, and Intel and AMD has later released compilers based on the
-specification \cite{shelvin park} \cite{amd-amp}. __Numba__
+specification \cite{shelvinpark} \cite{amd-amp}. __Numba__
 \cite{numba} introduced by Continuum Analytics and is still in
 development (2014), it enables executing Python code on a NVIDIA GPU
 and is built on \gls{LLVM}.
@@ -57,6 +57,7 @@ these underlying standards. The Numba compiler comes closest in
 functionalty of the approach taken by PTX.jl.
 
 # The SIMT model #
+\label{sec:simt}
 
 This section will provide a brief introduction to the programming
 model exposed to the programmer for both OpenCL \footnote{In general,
@@ -95,12 +96,12 @@ targeting the \gls{LLVM} compiler infrastructure. NVIDIA released part
 of their compiler in 2009 as open source. This included the \gls{PTX}
 backend \cite{nvptx} and the libNVVM \cite{libnvvm} optimizing
 compiler, both based on \gls{LLVM}. They also introduced a new
-intermediate representation called \gls{NVVM} which is largely based
-on \gls{LLVM} \gls{IR}. In 2012 the Khronos Group introduced
-\gls{OpenCL} \gls{SPIR}, an intermediate representation also based on
-\gls{LLVM} \gls{IR}. As both these \glspl{IR} was considered as
-targets for the PTX.jl library, a short introduction is given in the
-following subsections.
+intermediate representation called NVVM which is largely based on
+\gls{LLVM} \gls{IR}. In 2012 the Khronos Group introduced \gls{OpenCL}
+\gls{SPIR}, an intermediate representation also based on \gls{LLVM}
+\gls{IR}. As both these \glspl{IR} was considered as targets for the
+PTX.jl library, a short introduction is given in the following
+subsections.
 
 ## LLVM IR ##
 
