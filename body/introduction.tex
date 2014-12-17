@@ -21,55 +21,51 @@
 Writing efficient code has been in the domain of low level, static
 languages for decades. This relates to the fact that the efficiency of
 statically compiled languages could not be challenged by dynamic
-languages that usualy are interpreted.  With the recent developments
-in dynamic languages through utilization of \gls{JIT} compiling and
-tools like the \gls{LLVM} \cite{llvm} compiler infrastructure this
-truth has been challanged. Comparable performance has been achived
+languages that usually are interpreted.  With the recent developments
+in dynamic languages through utilization of \gls{JIT} compiling, and
+tools like the \gls{LLVM} \cite{llvm} compiler infrastructure, this
+truth has been challenged. Comparable performance has been achieved
 while retaining the expressive powers of a dynamic language. In this
-report these new powers are explored in the context of a heterogeneous
-computer system. A evaluate the performance of kernels defined in a
-high level language are compared to low level languages. And a
-discussion of programmer productivity is presented
+report, these new powers are explored in the context of a
+heterogeneous computer system. The performance of kernels defined in a
+high level language are compared to low level languages, and a
+discussion of programmer productivity is presented.
 
 ## Heterogeneous Computing ##
 
 ### Architectures ###
 
 Heterogeneous Computing referes to computing on a computer system that
-consisits of accelerators that are specialized for certain tasks. The
+consists of accelerators that are specialized for certain tasks. The
 most well known accelerator is the \gls{GPU}, which consists of a
 large number of simple computing cores and can compute flat data
 parallel programs highly efficient. A different example is the ARM
-big.LITTLE \cite{big.LITTLE} architecture. This architecure combines
+big.LITTLE \cite{big.LITTLE} architecture. This architecture combines
 two different core types, one small (low power) and one big (high
-performance) into one chip. This combination enables the chip to use
+performance), into one chip. This combination enables the chip to use
 less energy as a program usually exposes different phases where with
-different tradeoffs.
+different trade-offs.
 
 ### Programming environments ###
 
-Programming a hetrogeneous system is more complex than programming a
-homogeneous system. Primarly the memory hierarchy has to be taken into
-account as bandwidth is one of the largest limiting factor when it
-comes to performance. Secondly the abstractions we are used to when
-programming a \gls{CPU} does not always translate into efficient code
-on a different architectures like \gls{GPU}s. This complexity has to
-be dealt with by the programmer. In current solutions these are made
-accesible through software libraries and low-level languages subsets,
-mostly based on C/C++. 
+Programming a heterogeneous system is more complex than programming a
+homogeneous system. Primarily the memory hierarchy has to be taken
+into account, as bandwidth is one of the largest limiting factor when
+it comes to performance. Secondly, the abstractions we are used to
+when programming a \gls{CPU} does not always translate into efficient
+code on a different architectures like \gls{GPU}s. This complexity has
+to be dealt with by the programmer. In current solutions these are
+made accessible through software libraries and low-level languages
+subsets, mostly based on C/C++.
 
-#### OpenCL ####
-
-\gls{OpenCL} is a open standard for parallel programming of
-hetrogeneous systems. \gls{OpenCL} runs on all three major OS (Linux,
-OS X and Windows) and is supported by numerous architectures including
+\gls{OpenCL} is an open standard for parallel programming of
+heterogeneous systems. \gls{OpenCL} runs on all three major OS (Linux,
+OS X and Windows) and is supported by numerous architectures, including
 products from NVIDIA, \gls{AMD} and ARM.
-
-#### CUDA ####
 
 \gls{CUDA} referes to both a parallel computing platform and a
 programming model. It is used by NVIDIA on its line of GPUs. Although
-part of the software constituting the \gls{CUDA} framework has been
+the software constituting the \gls{CUDA} framework has been partly
 open sourced, this model is solely supported by NVIDIA.
 
 ## Language Implementation ##
@@ -77,16 +73,16 @@ open sourced, this model is solely supported by NVIDIA.
 ### The old fashion ###
 
 The current way of writing efficient code for a \gls{GPU} is to use a
-low level language like C, write kernels in a subset of the language
-and compiling them with a separate compiler in the case of \gls{CUDA}
-and by linking to a library for \gls{OpenCL}.
+low level language like C. The kernels are written in a subset of the
+language. The kernels are compiled with a separate compiler, either
+ahead of time or at runtime.
 
 ### Hybrid approach ###
 
 Some recent projects like PyOpenCL \cite{pyopencl} and JuliaGPU
 \cite{JuliaGPU} strives to provide support for executing kernels from
 within a high level dynamic language. This is done by wrapping the low
-level C libraries in the high level languages, then the kernels are
+level C libraries in the high level languages, before the kernels are
 passed to the underlying libraries within string variables. The
 kernels, written in C, are compiled by a separated compilation step
 and library routines are called from the high level language to
@@ -106,18 +102,19 @@ Julia programming language \cite{julia}. Julia is a dynamic
 programming language for technical computing, built on \gls{LLVM}. It
 provides a high level abstraction with comparable performance to low
 level languages like C and C++. One of the main goals of the language
-is to provide high level abstractions but also enabling the programmer
-to dive into low level optimization without having to resort to a
-low level language. This makes Julia stand aside from languages like
-Matlab, Python or R, where you will have to go into C in order to peal
-away the abstractions. This is because many of the high performance parts
-in these languages are thin wrappers of C implementations. 
+is to provide high level abstractions, but at the same time enabling
+the programmer to dive into low level optimization without having to
+resort to a low level language. This makes Julia stand aside from
+languages like Matlab, Python or R, where you will have to go into C
+in order to peal away the abstractions. This is because many of the
+high performance parts in these languages are thin wrappers of C
+implementations.
 
 The design goal and the fact that the interpreter is implemented with
-\gls{LLVM} makes the language a good fit for the project. The goal of
-letting programmers stay within the language boundry is the same main
+\gls{LLVM}, makes the language a good fit for the project. The goal of
+letting programmers stay within the language boundary is the same main
 motivation for the PTX.jl library. As the \gls{CUDA} compiler is based
-on \gls{LLVM} the library can utilize existing libraries for code
+on \gls{LLVM}, the library can utilize existing libraries for code
 generation.
 
 # The LLVM Compiler Infrastructure #
@@ -127,18 +124,18 @@ which compilers and interpreters for both dynamic and static
 programming languages can be implemented. This infrastructure consists
 of an intermediate representation, a number of compiler optimization
 passes and code generation for numerous targets. All of this sums up
-into a good foundation to target inorder to get great performance on a
+into a good foundation to target in-order to get great performance on a
 lot of platforms for the language in question. It also promotes code
-sharing between different communities as improvements done to the
-infrastructure is usually upstreamed back to the LLVM repository, so
+sharing between different communities, as improvements done to the
+infrastructure is usually up-streamed back to the LLVM repository, so
 all users can benefit.
 
 # Overview of the library #
 
 The library translates a subset of the Julia language into \gls{PTX}
 code. \gls{PTX} is the virtual \gls{ISA} of NVIDIAs \glspl{GPU}. The
-subset of Julia consists of one-dimention arrays over interger and
-floating point numbers. The system contains builtin functions
+subset of Julia consists of one-dimension arrays over integer and
+floating point numbers. The system contains built-in functions
 specified in the \gls{OpenCL} standard. PTX.jl can be used
 with existing Julia libraries for executing CUDA kernels.
 

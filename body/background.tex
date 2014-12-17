@@ -2,56 +2,56 @@
 
 \chapter{Background}
   
-Programming a modern \gls{GPU} is a hard problem. A lot of
+Programming a modern \gls{GPU} is a difficult problem. A lot of
 architecture specific aspects has to be taken into
-consideration. Traditionaly these devices can only be programmed in
+consideration. Traditionally, these devices can only be programmed in
 low level languages such as C/C++. Software libraries and language
-bindings does exist for higher level languages. Enabling a user of
-such a language make use of the device, but the kernel\footnote{A
-  kernel is the piece of code that is executed in parallel, this is
-  usually implemented as a function.} implementation is still in a low
-level language.
+bindings does exist for higher level languages, enabling a user of
+such a language to make use of the device. However, the
+kernel\footnote{A kernel is the piece of code that is executed in
+  parallel, this is usually implemented as a function.} implementation
+is still in a low level language.
 
 The Julia programming language aims to unify the two worlds of high
 productivity, given by abstractions, and high performance, given by a
-staticaly compiled language. This will enable users of this seemingly
-high level language to dive into optimizing their applications without
+statically compiled language. This will enable users of this seemingly
+high level language to dive into optimizing their applications, without
 having to resort to a lower level language for the
 implementation.
 
-The PTX.jl library presented in this report tries to extend the effort
-made by the Julia language to the realm of \gls{GPU} programming. This
-is possible due to the fact that Julia is implemented on top of
-\gls{LLVM} \cite{llvm} which also is the basis for both NVVM
+The PTX.jl library presented in this report extends the effort made by
+the Julia language, to the realm of \gls{GPU} programming. This is
+possible due to the fact that Julia is implemented on top of
+\gls{LLVM} \cite{llvm}, which also is the basis for both NVVM
 \cite{nvvm} and SPIR \cite{spir}, the intermediate representations of
 both the NVIDIA and the \gls{OpenCL} compiler.
 
 # History and State of the art #
 
-Programming a \gls{GPU} started out with a fixed pipeline with
-programmable steps used for rendering 3D graphics. In 2006 with the
-introduction of __\gls{CUDA}__ \cite{cuda} by NVIDIA and __\gls{APP}__
-\cite{app} by AMD in 2007, \gls{GPGPU} was introduced. \gls{GPGPU}
-entailes that the pipeline is fully programmable. This enables the
-\gls{GPU} to be used for non-graphic related applicaion.  Microsoft
-released __DirectCompute__ along with DirectX11 \cite{directx} in 2008
-that exposes a \gls{API} for the \gls{GPU} to the programmer in
-C++. In 2009 the Khronos Group released the first specification of
-__\gls{OpenCL}__ \cite{opencl} which tries to provide a platform
-independent language for programming heterogeneous systems. The
-__OpenACC__ \cite{openacc} standard was released in 2011 enabling
-programmers to execute code on \gls{GPU}s with directives as OpenMP
-\cite{openmp} enables multiple threads. In 2012 Microsoft released
-__C++ \gls{AMP}__ \cite{c++amp}, a C++ language- and programming model
-extension. Microsoft released a compiler for their own DirectCompute
-framework, and Intel and AMD has later released compilers based on the
-specification \cite{shelvinpark} \cite{amd-amp}. __Numba__
-\cite{numba} introduced by Continuum Analytics and is still in
-development (2014), it enables executing Python code on a NVIDIA GPU
-and is built on \gls{LLVM}.
+The first programming of a \gls{GPU} started out with a fixed pipeline
+with programmable steps used for rendering 3D graphics. In 2006, with
+the introduction of __\gls{CUDA}__ \cite{cuda} by NVIDIA and
+__\gls{APP}__ \cite{app} by AMD in 2007, \gls{GPGPU} was
+introduced. \gls{GPGPU} entailes that the pipeline is fully
+programmable. This enables the \gls{GPU} to be used for non-graphic
+related applicaion.  Microsoft released __DirectCompute__ along with
+DirectX11 \cite{directx} in 2008 that exposes a \gls{API} for the
+\gls{GPU} to the programmer in C++. In 2009 the Khronos Group released
+the first specification of __\gls{OpenCL}__ \cite{opencl} which tries
+to provide a platform independent language for programming
+heterogeneous systems. The __OpenACC__ \cite{openacc} standard was
+released in 2011, enabling programmers to execute code on \gls{GPU}s
+with directives as OpenMP \cite{openmp} enables multiple threads. In
+2012 Microsoft released __C++ \gls{AMP}__ \cite{c++amp}, a C++
+language- and programming model extension. Microsoft released a
+compiler for their own DirectCompute framework, and Intel and AMD has
+later released compilers based on the specification \cite{shelvinpark}
+\cite{amd-amp}. __Numba__ was \cite{numba} introduced by Continuum
+Analytics and is still in development (2014), the compiler enables
+executing Python code on a NVIDIA GPU and is built on \gls{LLVM}.
 
 Out of these \gls{CUDA} and \gls{OpenCL} are most suited for
-considerations in this projects as they can be used as compiler
+considerations in this projects, as they can be used as compiler
 targets. The others mentioned are software libraries that build on
 these underlying standards. The Numba compiler comes closest in
 functionalty of the approach taken by PTX.jl.
@@ -62,11 +62,11 @@ functionalty of the approach taken by PTX.jl.
 This section will provide a brief introduction to the programming
 model exposed to the programmer for both OpenCL \footnote{In general,
   OpenCL exposes a model called \gls{SPMD} \cite{opencl}, but on a GPU
-  with a underlying vector architecture this can be considered as
+  with an underlying vector architecture this can be considered as
   SIMT.}  and CUDA. \gls{SIMT} is an abstraction over the hardware
 technique of \gls{SIMD}. The model provides the programmer with the
 abstraction that a kernel is executed in an independent thread. The
-kernel usualy takes large one-dimentional arrays as input and output
+kernel usually takes large one-dimentional arrays as input and output
 parameter. The environment defines index functions that the programmer
 can use to access elements of the data structures. An example kernel
 for vector addition is given in Figure \ref{smit:add}.
@@ -82,7 +82,7 @@ for vector addition is given in Figure \ref{smit:add}.
   \label{smit:add}
 \end{figure}
 
-On line 2 the kernel finds its index in the first dimension and on
+On line 2, the kernel finds its index in the first dimension, and on
 line 3 a single element addition is performed. The _Host_ (\gls{CPU})
 schedules the kernel to be executed on the same number of threads as
 the length of the array. The hardware on the _Device_ (\gls{GPU})
@@ -96,7 +96,7 @@ targeting the \gls{LLVM} compiler infrastructure. NVIDIA released part
 of their compiler in 2009 as open source. This included the \gls{PTX}
 backend \cite{nvptx} and the libNVVM \cite{libnvvm} optimizing
 compiler, both based on \gls{LLVM}. They also introduced a new
-intermediate representation called NVVM which is largely based on
+intermediate representation called NVVM, which is largely based on
 \gls{LLVM} \gls{IR}. In 2012 the Khronos Group introduced \gls{OpenCL}
 \gls{SPIR}, an intermediate representation also based on \gls{LLVM}
 \gls{IR}. As both these \glspl{IR} was considered as targets for the
@@ -112,7 +112,7 @@ representation.
 
 \gls{LLVM} \gls{IR} is a compiler internal intermediate
 representation. It is intended as a good representation for compiler
-optimization and analysis. The representation has three forms, a human
+optimization and analysis. The representation has three forms; a human
 readable format (.ll), a bitcode format (.bc) and an in-memory
 format. These three forms are all equivalent, therefore the human
 readable format is presented here.
@@ -156,18 +156,18 @@ the end of line binds the function to the attributes _nounwind ssp
 uwtable_ specified on line 13. Above the attribute on line 11 is a _
 function declaration_ of _get_global_id_. The last two lines 15 and 17
 specifies metadata. LLVM contains both named metadata and unnamed. The
-unnamed section gets assigned numbers !0 in this case on line 17.  The
+unnamed section gets assigned numbers !0, in this case on line 17.  The
 _!llvm.ident_ on line 15 referes to this unnamed node. 
 
 ## SPIR ##
 
-\gls{SPIR} is \glspl{OpenCL} format for representing kernels for
+\gls{SPIR} is an \glspl{OpenCL} format for representing kernels for
 execution on heterogeneous systems. The specification is a mapping
 from OpenCL C into LLVM IR. SPIR does not add a lot of extra to the
 LLVM IR. The notable differences are new _target datalayout_ and
 _triple_, a _named metadata node_ for specifying kernels,
 specification of _address space qualifiers_ and _name mangling
-rules_. In addition the kernel arguments must be included in the
+rules_. In addition, the kernel arguments must be included in the
 metadata section. Figure \ref{fig:spir} lists a \gls{SPIR} module
 containing the kernel definition for the _add_ function.
 
@@ -200,13 +200,13 @@ containing the kernel definition for the _add_ function.
 All SPIR modules must contain the named metadata node
 __opencl.kernels__. The value of this node is a list of the kernel
 functions in the module. For each kernel the signature must be
-included in the metadata section. As seen in Figure \ref{fig:spir} the
-opencl.kernels node points to the method signature in _!1_ and this
-node matches the signature of the function.
+included in the metadata section. As seen in Figure \ref{fig:spir},
+the opencl.kernels node points to the method signature in _!1_ and
+this node matches the signature of the function.
 
 ### Address Space Qualifiers ###
 
-The qualifier used in the parameter list of the add functions shows
+The qualifier used in the parameter list of the add functions, shows
 how address space qualifiers are utilized in SPIR. This qualifiers
 denotes what type of memory is used on the device.
 
@@ -225,7 +225,7 @@ denotes what type of memory is used on the device.
     \hline
     3         & local    & Private to each work group \\
     \hline
-    4         & generic  & TODO: I dunno \\
+    4         & generic  &  \\
     \hline
   \end{tabular}
   \caption{Address Space Qualifiers for SPIR}
@@ -237,7 +237,7 @@ space.
 
 ### Name Mangling ###
 
-OpenCL contains many builtin overloaded functions like the math
+OpenCL contains many built-in overloaded functions, like the math
 function __sin__. Name mangling is used to distinguish between the
 different implementations based on their argument types. In Figure
 \ref{fig:spir} on line 5 the _get_global_id_ is mangled into
@@ -247,16 +247,16 @@ the Intel Itanium.
 ## NVVM ##
 
 \gls{NVVM} is NVIDIAs intermediate representation, used in their
-\gls{LLVM} based compiler for \gls{CUDA}. It does as \gls{SPIR},
-represent device kernels that are intended to be executed on a device,
-but solely \glspl{GPU}. \gls{NVVM} adds to \gls{LLVM} \gls{IR} a set of
-intrinsic functions for controlling the \gls{GPU}. Among these are
-barriers, address space conversions, special register accessors. The
-\gls{NVVM} Cuda Compiler compiles \gls{NVVM} \gls{IR} into \gls{PTX}
-which is loaded into a the devices with either the \gls{CUDA} or
-\gls{OpenCL} driver provided by NVIDIA. Like \gls{SPIR} it defines
-targets, address space qualifiers and a metadata node to declare a
-function as a kernel.
+\gls{LLVM} based compiler for \gls{CUDA}. Like \gls{SPIR}, it
+represents device kernels that are intended to be executed on a
+device, but solely \glspl{GPU}. \gls{NVVM} adds to \gls{LLVM} \gls{IR}
+a set of intrinsic functions for controlling the \gls{GPU}. Among
+these are barriers, address space conversions and special register
+accessors. The \gls{NVVM} Cuda Compiler compiles \gls{NVVM} \gls{IR}
+into \gls{PTX}, which is loaded into the devices with either the
+\gls{CUDA} or \gls{OpenCL} driver provided by NVIDIA. Like \gls{SPIR},
+it defines targets, address space qualifiers and a metadata node to
+declare a function as a kernel.
 
 \begin{figure}[H]
   \begin{minted}[linenos,numbersep=5pt,gobble=2,frame=lines,framesep=2mm]{llvm}
@@ -289,7 +289,7 @@ kernel node on line 17 in figure \ref{fig:nvvm}. This is done as the
 annontations is also used for global variables etc. These are not used
 in the PTX.jl library.
 
-### Builtin Intrinsics ###
+### Built-in Intrinsics ###
 
 \gls{NVVM} comes with a set of built in intrisics functions. The
 definition of the _threadIdx.x_ variable, accessible inside \gls{CUDA}
@@ -324,19 +324,19 @@ the different qualifiers and their usage.
 ## Summary ## 
 
 As the above discussion shows, SPIR and NVVM are in the gist very
-similar. They both define multiple address spaces, builtin
-functionality and a way to distingush kernel functions. The lagest
+similar. They both define multiple address spaces, built-in
+functionality and a way to distingush kernel functions. The largest
 incompability is the definition of the address qualifiers. 
 
 ## Support ##
 
 Both these intermediate representations are inteded as compiler
 targets for new programming languages. The NVVM is only supported by
-NVIDIAs drivers and can only be executed on NVIDIA GPUs. SPIR on the
-other hand can potentialy execute on all platforms that execute
-OpenCL. Unfortunalty at the time of writing a implementation on NVIDIA
-is not available, but both Intel an AMD has support for SPIR in their
-newest hardware.
+NVIDIAs drivers and can only be executed on NVIDIA GPUs. SPIR, on the
+other hand, can potentialy execute on all platforms that execute
+OpenCL. Unfortunalty, at the time of writing an implementation on
+NVIDIA is not available, but both Intel an AMD has support for SPIR in
+their newest hardware.
 
 # A governing factor in Hardware Platform #
 
@@ -365,7 +365,7 @@ C. Elster.
   \label{tab:hw}
 \end{table}
 
-As this platform consists of a NVIDIA GPU the IR chosen was NVVM. As
+As this platform consists of a NVIDIA GPU, the IR chosen was NVVM. As
 the outlines in this section implies, changing the library to target
 SPIR instead can be easily done.
 

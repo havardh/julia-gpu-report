@@ -8,16 +8,16 @@ This chapter describes the implementation of the PTX.jl library
 described in Section \ref{sec:meth:ptx}. The implementation consists
 of three phases. __1)__ Creating a LLVM loadable module from a Julia
 function, __2)__ lowering the function to code executable by a GPU and
-__3)__ compiling the code into ptx. The first phase is implemented as
-in Julia as a __module generator__, the last two are combined in a
+__3)__ compiling the code into ptx. The first phase is implemented in
+Julia as a __module generator__, and the last two are combined in a
 __lowering compiler__. Figure \ref{fig:compiler} gives a overview of
 the library.
 
 The CUDA.jl library is used as a glue to transfer data to and from the
 device and schedule the generated code on the device.
 
-In this chapter we will iterate through the design. First we look at
-the implementation from an overview persepective. Then a simplified
+In this chapter, we will iterate through the design. First we look at
+the implementation from an overview perspective, and then a simplified
 flow through the pipeline. The last section will look at some
 important implementation details.
 
@@ -35,20 +35,21 @@ generation. A julia function, adhering to the kernel language defined
 in \ref{sec:meth:kernel}, is turned into LLVM IR by the module
 generator. This code is then lowered into code that the LLVM PTX
 backend can create code for. Here a modified version of the \gls{LLC}
-compiler is employed. The PTX code can then be loaded and executed
-into the GPU with existing CUDA bindings written for Julia.
+is employed. The PTX code can then be loaded and executed into the GPU
+with existing CUDA bindings written for Julia.
 
 ### Julia Module Generator ###
 
 The module generator phase is responsible for producing a valid LLVM
-_Module_. It is implemented on top of the Julia builtin _@code_llvm_
-macro. The interface to the generator is the _code_module_ function.
+_Module_. It is implemented on top of the Julia built-in
+\textit{@code_llvm} macro. The interface to the generator is the
+_code_module_ function.
 
 ### Lowering Compiler ###
 
 The lowering compiler is built on top of the \gls{LLC}. The compiler
-extends \gls{LLC} by linking to predefined libraries, a lowering and
-an annotating compiler pass.
+extends \gls{LLC} by linking to predefined libraries, and a lowering
+and annotating compiler pass.
 
 The interface to the library as a whole is a function called
 _code_ptx_. It has the same signature as the function version of
@@ -56,7 +57,7 @@ _code_llvm_.
 
 # A Guided tour through the compiler #
 
-This section will go though the compiler step by step looking at the
+This section will go through the compiler step by step, looking at the
 generated code to show how the code is transformed. Some details are
 left out and discussed in Section \ref{sec:implementation-details}.
 
@@ -74,7 +75,7 @@ left out and discussed in Section \ref{sec:implementation-details}.
   \label{fig:julia-copy}
 \end{figure}
 
-Consider the julia kernel function in Figure \ref{fig:julia-copy}. It
+Consider the Julia kernel function in Figure \ref{fig:julia-copy}. It
 is transformed by executing the Julia statement in Figure
 \ref{fig:impl:code_ptx}.
 
@@ -82,14 +83,14 @@ is transformed by executing the Julia statement in Figure
   \begin{minted}[linenos,numbersep=5pt,gobble=2,frame=lines,framesep=2mm]{julia}
   code_ptx(copy, (GPUArray{Int64}, GPUArray{Int64}))
   \end{minted}
-  \caption{}
+  \caption{Generating PTX from a Julia function}
   \label{fig:impl:code_ptx}
 \end{figure}
 
 
 ## A LLVM module for Julia Function ##
 
-The macro __@code\_llvm__ compiles a julia function with arguments
+The macro __@code\_llvm__ compiles a Julia function with arguments
 down to the corresponding LLVM IR representation. In order to load
 this string into a LLVM module, function declarations and types used
 in the function must be included. As seen in Figure
@@ -119,14 +120,14 @@ in the function must be included. As seen in Figure
 
 The lowering LLVM pass transforms the function in figure
 \ref{fig:copy_llvm} to the one in figure \ref{fig:copy_lowered}. In
-this step, the gpu low level implementations for the arrays have been
+this step, the GPU low level implementations for the arrays have been
 linked and inlined, in place of the calls to __getindex__ and
 __setindex!__ in Figure \ref{fig:copy_llvm}. The __get_global_id__
 function has been mangled to enable it to be linked with its
-implementation in the next step. The julia arrays represented with
-__jl_value_t__ has been replaced with a unboxed integer pointer in the
+implementation in the next step. The Julia arrays represented with
+__jl_value_t__ has been replaced with an unboxed integer pointer in the
 _global_ address space. The annotating pass has added the
-__!nvvm.annontations__ named metadata. An it is set up so the PTX
+__!nvvm.annontations__ named metadata, and it is set up so the PTX
 backend recognizes the function as a kernel.
 
 \begin{figure}[H]
@@ -165,38 +166,38 @@ the existing CUDA libraries for Julia.
 # Implementation details #
 \label{sec:implementation-details}
 
-This section discusses implementation details that were vital
-realizing the PTX.jl library.
+This section discusses implementation details which were vital
+to realize the PTX.jl library.
 
 ## Disabling inlining ##
 
-A key to the method used in PTX.jl is disabling inlining. This can be
+A key to the method used in PTX.jl is to disable inlining. This can be
 done in two ways, either extending the Julia compiler or tricking the
 inlining mechanism.
 
-### Compiler extention ###
+### Compiler extension ###
 
-The compiler extention is to create a macro, _@noinline_ analogous to
-the exising _@inline_. The macro annotates a method so the Julia
+The compiler extension is to create a macro, \textit{@noinline} analogous to
+the existing \textit{@inline}. The macro annotates a method so that the Julia
 inlining mechanism will not consider a call to the method for
 inlining.
 
 ### The inline hack ###
 
 The hack is to create a function, _noinline_, that does not get
-inlined. This is done by examining the inlining mechamism in Julia and
+inlined. This is done by examining the inlining mechanism in Julia, and
 designing a function that is not subject to inlining.
 
-By forcing this function to be inlined in the function you do not want
+By forcing this function to be inlined in the function, you do not want
 inlined, you end up with a mechanism to avoid inlining. This is done
-by annotating the _noinline_ function with the macro _@inline_. This
+by annotating the _noinline_ function with the macro \textif{@inline}. This
 bypasses the regular inline mechanism and will forcibly inline any
 function.
 
 ### Choosing the hack ###
 
 The latter approach is chosen to avoid changes to the compiler. This
-hack might be temporaray as there are discussions involving the Julia
+hack might be temporary, as there are discussions involving the Julia
 function _llvmcall_ that might enable the similar behavior in a more
 clean way.
 
@@ -215,32 +216,33 @@ unboxed arrays i.e. c pointers.
 ## Function Lowering ##
 
 The kernel function is lowered by substituting a Julia __GPUArray{T}__
-with the LLVM IR __T*__. The replacement starts by lowering the
-parameters of the kernel. Then the _use graph_ of the paremeter in the
-function is lowered. In addition all calls to the Julia stubs are
-linked agains the OpenCL implementation. The OpenCL name mangling
+with the LLVM IR \textbf{T*}. The replacement starts by lowering the
+parameters of the kernel. Then the _use graph_ of the parameter in the
+function is lowered. In addition, all calls to the Julia stubs are
+linked against the OpenCL implementation. The OpenCL name mangling
 rules are employed to support multiple primitive types (See Section
 \ref{sec:impl:types}).
 
-## Builtin kernel functions ##
+## Built-In kernel functions ##
 
-As mentioned in Section \ref{sec:meth:builtins} the OpenCL
-specification defines builtin functions that are available to a
+As mentioned in Section \ref{sec:meth:built-ins}, the OpenCL
+specification defines built-in functions that are available to a
 kernel. __libclc__ \cite{libclc} provides an open source
 implementation of the runtime library for the LLVM NVPTX backend. This
-library is used as is and is linked just before the optimization phase
-so that the library functions can be inlined by the LLVM optimizer.
+library is used \textit{as is} and is linked just before the
+optimization phase so that the library functions can be inlined by the
+LLVM optimizer.
 
 ## Supporting multiple primitive types ##
 \label{sec:impl:types}
 
 The implementation supports 32- and 64-bits integer and floating point
-numbers. To facilitate this the functions mentioned in
+numbers. To facilitate this, the functions mentioned in
 \ref{sec:implementation-details-unboxed} are overloaded for the four
 types. Type information in Julia is contained inside the argument as a
 runtime value. Therefore the information is not accessible by calling
-the _@code_llvm_ macro, running at compile time. This is solved by
-passing the type information in a named metadata node added to the
+the \textit{@code_llvm} macro, running at compile time. This is solved
+by passing the type information in a named metadata node, added to the
 module in the module generator. This implies that the kernel has a
 fixed type and must be generated for each type.
 
@@ -248,10 +250,10 @@ fixed type and must be generated for each type.
 
 The linking functionality of \gls{LLVM} enables linking a module with
 all the function implementations and definitions of another
-module. This is not necessary for the kernel compiler and running dead
+module. This is not necessary for the kernel compiler, and running dead
 code elimination after linking is not very performant. As a
-consequence the linking procedure from the \gls{pocl} \cite{pocl} compiler is
-included and used when linking a kernel to the builtin definitions
+consequence, the linking procedure from the \gls{pocl} \cite{pocl} compiler is
+included and used when linking a kernel to the built-in definitions
 exposed by libclc. The \gls{pocl} linker copies only the functions
 that are in the call graph of functions in the original module, and
 ignores functions that are not called.
