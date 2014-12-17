@@ -106,7 +106,7 @@ subsections.
 ## LLVM IR ##
 
 This section will briefly introduce the \gls{LLVM} intermediate
-representation. The \gls{SPIR} and \gls{NVVM} representations
+representation. The \gls{SPIR} and NVVM representations
 described in the next two subsections are extensions to this
 representation.
 
@@ -246,17 +246,16 @@ the Intel Itanium.
 
 ## NVVM ##
 
-\gls{NVVM} is NVIDIAs intermediate representation, used in their
-\gls{LLVM} based compiler for \gls{CUDA}. Like \gls{SPIR}, it
-represents device kernels that are intended to be executed on a
-device, but solely \glspl{GPU}. \gls{NVVM} adds to \gls{LLVM} \gls{IR}
-a set of intrinsic functions for controlling the \gls{GPU}. Among
-these are barriers, address space conversions and special register
-accessors. The \gls{NVVM} Cuda Compiler compiles \gls{NVVM} \gls{IR}
-into \gls{PTX}, which is loaded into the devices with either the
-\gls{CUDA} or \gls{OpenCL} driver provided by NVIDIA. Like \gls{SPIR},
-it defines targets, address space qualifiers and a metadata node to
-declare a function as a kernel.
+NVVM is NVIDIAs intermediate representation, used in their \gls{LLVM}
+based compiler for \gls{CUDA}. Like \gls{SPIR}, it represents device
+kernels that are intended to be executed on a device, but solely
+\glspl{GPU}. NVVM adds to \gls{LLVM} \gls{IR} a set of intrinsic
+functions for controlling the \gls{GPU}. Among these are barriers,
+address space conversions and special register accessors. The NVVM
+Cuda Compiler compiles NVVM \gls{IR} into \gls{PTX}, which is loaded
+into the devices with either the \gls{CUDA} or \gls{OpenCL} driver
+provided by NVIDIA. Like \gls{SPIR}, it defines targets, address space
+qualifiers and a metadata node to declare a function as a kernel.
 
 \begin{figure}[H]
   \begin{minted}[linenos,numbersep=5pt,gobble=2,frame=lines,framesep=2mm]{llvm}
@@ -291,14 +290,14 @@ in the PTX.jl library.
 
 ### Built-in Intrinsics ###
 
-\gls{NVVM} comes with a set of built in intrisics functions. The
+NVVM comes with a set of built in intrisics functions. The
 definition of the _threadIdx.x_ variable, accessible inside \gls{CUDA}
 kernels, is implemented as such and intrinsic. Its declaration is
 given at line 5 of Figure \ref{fig:nvvm}.
 
 ### Address Space Qualifiers ###
 
-Like \gls{SPIR}, \gls{NVVM} specifies address space qualifiers. They
+Like \gls{SPIR}, NVVM specifies address space qualifiers. They
 differ only slightly from the OpenCL definition and is more tailored
 to the NVIDIA GPU architecture. Table \ref{tab:nvvm:addr} tabulates
 the different qualifiers and their usage.
