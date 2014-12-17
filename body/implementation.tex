@@ -42,7 +42,7 @@ with existing CUDA bindings written for Julia.
 
 The module generator phase is responsible for producing a valid LLVM
 _Module_. It is implemented on top of the Julia built-in
-\textit{@code_llvm} macro. The interface to the generator is the
+\textit{@code\_llvm} macro. The interface to the generator is the
 _code_module_ function.
 
 ### Lowering Compiler ###
@@ -190,7 +190,7 @@ designing a function that is not subject to inlining.
 
 By forcing this function to be inlined in the function, you do not want
 inlined, you end up with a mechanism to avoid inlining. This is done
-by annotating the _noinline_ function with the macro \textif{@inline}. This
+by annotating the _noinline_ function with the macro \textit{@inline}. This
 bypasses the regular inline mechanism and will forcibly inline any
 function.
 
@@ -241,7 +241,7 @@ numbers. To facilitate this, the functions mentioned in
 \ref{sec:implementation-details-unboxed} are overloaded for the four
 types. Type information in Julia is contained inside the argument as a
 runtime value. Therefore the information is not accessible by calling
-the \textit{@code_llvm} macro, running at compile time. This is solved
+the \textit{@code\_llvm} macro, running at compile time. This is solved
 by passing the type information in a named metadata node, added to the
 module in the module generator. This implies that the kernel has a
 fixed type and must be generated for each type.
@@ -252,7 +252,7 @@ The linking functionality of \gls{LLVM} enables linking a module with
 all the function implementations and definitions of another
 module. This is not necessary for the kernel compiler, and running dead
 code elimination after linking is not very performant. As a
-consequence, the linking procedure from the \gls{pocl} \cite{pocl} compiler is
+consequence the linking procedure from the \gls{pocl} \cite{pocl} compiler is
 included and used when linking a kernel to the built-in definitions
 exposed by libclc. The \gls{pocl} linker copies only the functions
 that are in the call graph of functions in the original module, and
